@@ -8,14 +8,21 @@ def read_data(dataname):
         for i,x in enumerate(lis):              #print the list items
             print 'line{0} = {1}'.format(i,x)
 
-#read_data('dataset_train.csv')
 ### Data Analysis
+
+
+
+
+
+
 
 class dataframe:
     def __init__(self, dataname):
         self.dataname = dataname
 
-    
+
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Dataset you want to describe')
     parser.add_argument('set', type = str, help = 'name of the file to read')
