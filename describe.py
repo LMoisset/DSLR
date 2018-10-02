@@ -9,3 +9,9 @@ def read_data(dataname):
 
 read_data('dataset_train.csv')
 ### Data Analysis
+
+class dataframe:
+    def __init__(self, dataname):
+        self.dataname = dataname
+
+    
