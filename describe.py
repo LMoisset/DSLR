@@ -62,11 +62,6 @@ def Quartile(lis, p):
         quart = 'Not numerical'
     return quart
 
-
-def scatter_plot(list):
-    
-
-
 class dataframe:
     def __init__(self, dataname):
         self.dataname = dataname
