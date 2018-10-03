@@ -25,18 +25,20 @@ def Count(lis):
 def Mean(lis):
     m = 0
     try:
-        for i in lis:
-            m += float(i)
-        m = m / len(lis)
-    except TypeError:
+        lis2 = [float(l) for l in lis if l] # remove empty strings + converts to floats
+        for i in lis2:
+            m += i
+        m = m / len(lis2)
+    except ValueError:
         m = 'Not numerical'
     return m
 
 def Std(lis):
     n = len(lis)
     try:
-        lis2 =  [(l - Mean(lis))**2 for l in lis]
-        sd = sqrt(sum(lis2)/n -1)
+        lis2 = [float(l) for l in lis if l] # remove empty strings + converts to floats
+        lis3 =  [(l - Mean(lis2))**2 for l in lis2]
+        sd = sqrt(sum(lis3)/n -1) # unbiaised
     except (TypeError, ValueError):
         sd = 'Not numerical'
     return sd
@@ -44,10 +46,10 @@ def Std(lis):
 def Quartile(lis, p):
     n = len(lis)
     try:
-        lis2 = [float(l) for l in lis]
+        lis2 = [float(l) for l in lis if l]
         lis2 = sorted(lis2)
         if p == 1:
-            quart = lis2[-1] # le max
+            quart = lis2[-1] # if we want the max
         else:
             quart = lis2[int(n*p)]
     except (TypeError, ValueError):
@@ -65,23 +67,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
     feature_dico, feature_list = read_data(args.set)
 
+    res = ['Count', 'Mean', 'Std', 'Min', '0.25%', '0.5%', 'O.75%', 'Max']
+    print '%s' % '\t'.join([str(x) for x in res])
+
     for feature in feature_list:
-        print feature_dico[feature][10]
         res = []
-        #res.append(Count(feature_dico[feature]))
+        res.append(Count(feature_dico[feature]))
         res.append(Mean(feature_dico[feature]))
-        # res.append(Std(feature_dico[feature]))
-        # for i in [0, 0.25, 0.5, 0.75, 1]:
-        #     res.append(Quartile(feature_dico[feature], i))
+        res.append(Std(feature_dico[feature]))
+        for i in [0, 0.25, 0.5, 0.75, 1]:
+            res.append(Quartile(feature_dico[feature], i))
 
         print '%s' % '\t'.join([str(x) for x in res])
-
-#### PB : certains floats pas convertis ??
-
-    # print Count(feature_dico[feature_list[-1]])
-    # print Mean(feature_dico[feature_list[-1]])
-    # print Quartile(feature_dico[feature_list[-1]], 0)
-    # print Quartile(feature_dico[feature_list[-1]], 0.25)
-    # print Quartile(feature_dico[feature_list[-1]], 0.5)
-    # print Quartile(feature_dico[feature_list[-1]], 0.75)
-    # print Quartile(feature_dico[feature_list[-1]], 1)
