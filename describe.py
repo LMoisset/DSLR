@@ -5,7 +5,7 @@ from math import sqrt
 
 ### GIVES A DICT OF ALL OF THE FEATURES
 def read_data(dataname):
-    with open('data/' + dataname) as f:
+    with open('../data/' + dataname) as f:
         lis=[line for line in f]
         nb_features = len(lis[0].split(','))-1
         feature_list = lis[0].strip().split(',')[1:]
@@ -67,11 +67,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     feature_dico, feature_list = read_data(args.set)
 
-    res = ['Count', 'Mean', 'Std', 'Min', '0.25%', '0.5%', 'O.75%', 'Max']
+    res = ['Feature', 'Count', 'Mean', 'Std', 'Min', '0.25%', '0.5%', 'O.75%', 'Max']
     print '%s' % '\t'.join([str(x) for x in res])
 
     for feature in feature_list:
-        res = []
+        res = [feature]
         res.append(Count(feature_dico[feature]))
         res.append(Mean(feature_dico[feature]))
         res.append(Std(feature_dico[feature]))
