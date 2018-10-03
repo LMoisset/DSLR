@@ -5,7 +5,7 @@ from math import sqrt
 
 ### GIVES A DICT OF ALL OF THE FEATURES
 def read_data(dataname):
-    with open('../data/' + dataname) as f:
+    with open('data/' + dataname) as f:
         lis=[line for line in f]
         nb_features = len(lis[0].split(','))-1
         feature_list = lis[0].strip().split(',')[1:]
