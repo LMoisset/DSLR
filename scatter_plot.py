@@ -5,33 +5,7 @@ from describe import Quartile, Count, Mean
 from histogram import read_data2
 
 
-
-def anova4(x, y, z, t):
-    x = [float(l) for l in x if l]
-    y = [float(l) for l in y if l]
-    z = [float(l) for l in z if l]
-    t = [float(l) for l in t if l]
-    tot = x + y +z + t
-    tot_nest = [x, y, z, t]
-    SSbetween = - sum(tot)**2/float(len(tot))
-    for i in range(4):
-        SSbetween += sum(tot_nest[i])**2/float(len(tot_nest[i]))
-    SSwithin  = sum([l**2 for l in tot]) - sum(tot)**2/float(len(tot))
-    dfb = len(tot_nest) - 1
-    dfw = len(tot)- len(tot_nest)
-    MSbetween = SSbetween/ dfb
-    MSwithin = SSwithin / dfw
-    F = MSbetween /MSwithin
-    return F
-
-
-
 house_colors = {'Ravenclaw': 'blue', 'Slytherin': 'green', 'Gryffindor' : 'red', 'Hufflepuff' : 'yellow'}
-
-# ANOVA F stat with confidence alpha = 0.05
-# grade repartition is homogeneous if F <= F_3_1550
-F_3_1550 = 2.6
-
 
 def scatter_plot(dict, feature1, feature2, house_colors):
     list1 = dict[feature1]
