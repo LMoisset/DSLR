@@ -24,10 +24,10 @@ if __name__ == '__main__':
     feature_dico, feature_list = read_data2(args.set)
 
     houses = feature_dico[feature_list[0]].keys()
-    for i in range(len(feature_list[6:]) - 1):
-        for j in feature_list[i+7:]:
-            plt = scatter_plot(feature_dico, feature_list[i + 6], j, house_colors)
-            plt.xlabel(feature_list[i + 6])
+    for i in range(len(feature_list) - 1):
+        for j in feature_list[i + 1:]:
+            plt = scatter_plot(feature_dico, feature_list[i], j, house_colors)
+            plt.xlabel(feature_list[i])
             plt.ylabel(j)
             plt.show()
 
