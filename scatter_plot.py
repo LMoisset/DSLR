@@ -2,32 +2,7 @@ import argparse
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from describe import Quartile, Count, Mean
-
-
-def convert_float(x):
-    if x != '':
-        try:
-            x = float(x)
-            return x
-        except (TypeError, ValueError):
-            return x
-
-### Quel cours de Poudlard a une repartition des notes homogenes entre les 4 maisons ?
-def read_data2(dataname):
-    with open('data/' + dataname) as f:
-        lis=[line for line in f]
-        feature_list = lis[0].strip().split(',')[6:] # only the subjects features
-        nb_subjects = len(feature_list)
-        feature_dico = dict((k,dict()) for k in feature_list)
-        for student in lis[1:]:
-            house = student.strip().split(',')[1]
-            grades = student.strip().split(',')[5:]
-            for i in range(nb_subjects):
-                if house in feature_dico[feature_list[i]].keys():
-                    feature_dico[feature_list[i]][house].append(convert_float(grades[i]))
-                else:
-                    feature_dico[feature_list[i]][house] = [convert_float(grades[i])]
-        return feature_dico, feature_list
+from histogram import read_data2
 
 
 
