@@ -6,7 +6,7 @@ import pandas as pd
 
 
 def cat_to_dummies(df):
-    cat_columns = list(df.select_dtypes(include = ['object'])) 
+    cat_columns = list(df.select_dtypes(include = ['object']))
     print(cat_columns)
     for col in cat_columns:
         categories = df[col].unique()
@@ -17,8 +17,6 @@ def cat_to_dummies(df):
             df.loc[df[new_colname] != categories[i]] = 0
         df = df.drop(col, 1)
         return df
-    
-        
 
 
 
@@ -40,21 +38,25 @@ def h(x, theta):
     return res
 
 def loss_function(theta, X, Y):
-    return X
+    m = len(X)
+    J = 0
+    for i in range(1, m+1):
+        J += -1/m * (Y[i]*log(h(X[i], theta))) + (1-Y[i])log(1-h(X[i], theta))
+    return J
 
+def gradient(theta, X, Y, j):
+    m = len(X)
+    dJ = 0
+    for i in range(1, m+1):
+        dJ += (h(X[i], theta) - Y[i])X[i][j]
+    return dJ
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Dataset you want to describe')
     parser.add_argument('set', type = str, help = 'Name of the file to read')
     args = parser.parse_args()
-    
+
     X_df, Y_df = preprocess(args.set)
     X_new = cat_to_dummies(X_df)
     print(X_new.head())
     print(X_df.head())
-
-
-
-
-
-
