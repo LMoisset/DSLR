@@ -3,7 +3,7 @@
 import argparse
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from describe import Quartile, Count, Mean
+from describe import Quartile, Count
 
 
 ### Quel cours de Poudlard a une repartition des notes homogenes entre les 4 maisons ?
@@ -42,7 +42,14 @@ def anova4(x, y, z, t):
     F = MSbetween /MSwithin
     return F
 
-
+def homogen_fonction(feature_dico, feature_list, F_real):
+    homogen_features = []
+    for feature in feature_list:
+        X = feature_dico[feature]
+        F = anova4(X[houses[0]],X[houses[1]], X[houses[2]], X[houses[3]])
+        if F <= F_real:
+            homogen_features.append(feature)
+    return homogen_features
 
 def freq_per_house(feature, b = 20): # a dictionnary / b = nb of bins, an integer
     houses = feature.keys()
@@ -53,8 +60,6 @@ def freq_per_house(feature, b = 20): # a dictionnary / b = nb of bins, an intege
     mini = Quartile(all_grades, 0) #min
     maxi = Quartile(all_grades, 1) #max
     grade_list = [mini + (maxi-mini)/b*i for i in range(b+1)]
-    # grade dico per range and per house
-    #grade_dico = dict((house, dict()) for house in houses)
     xy_dico = dict((house, dict()) for house in houses)
     for house in houses:
         xy_dico[house]['x'] = [mini]
@@ -64,26 +69,25 @@ def freq_per_house(feature, b = 20): # a dictionnary / b = nb of bins, an intege
         for i in range(1,b+1):
             lis2 = [l for l in lis if (l <= grade_list[i] and l > grade_list[i-1])]
             freq = Count(lis2)/float(nb_student)
-            #grade_dico[grade_list[house]][i] = freq 
             xy_dico[house]['x'].extend((grade_list[i-1], grade_list[i]))
             xy_dico[house]['y'].extend((freq, freq))
         xy_dico[house]['x'].append(grade_list[b]) # pour refermer le graph
         xy_dico[house]['y'].append(0)
-    score_hg = 0
     return xy_dico
 
 
-    
+def plot_hist(feature, b = 20):
+    xy_dico = freq_per_house(feature, b)
+    house_colors = {'Ravenclaw': 'blue', 'Slytherin': 'green', 'Gryffindor' : 'red', 'Hufflepuff' : 'yellow'}
+    for house in houses:
+        x = xy_dico[house]['x']
+        y = xy_dico[house]['y']
+        plt.fill(x, y, color= house_colors[house], linewidth=2, label = house, alpha = 0.5)
+    plt.xlim(Quartile(x,0),)
+    plt.ylim(Quartile(y,0),)
+    plt.title(feature_list[k])
+    plt.legend(ncol = 2, fontsize = 'x-small')
 
-
-
-
-
-house_colors = {'Ravenclaw': 'blue', 'Slytherin': 'green', 'Gryffindor' : 'red', 'Hufflepuff' : 'yellow'}
-
-# ANOVA F stat with confidence alpha = 0.05
-# grade repartition is homogeneous if F <= F_3_1550
-F_3_1550 = 2.6
 
 
 if __name__ == '__main__':
@@ -93,32 +97,19 @@ if __name__ == '__main__':
     feature_dico, feature_list = read_data2(args.set)
     houses = list(feature_dico[feature_list[0]].keys())
 
-    
-    homogen_features = []
-    for feature in feature_list:
-        X = feature_dico[feature]
-        F = anova4(X[houses[0]],X[houses[1]], X[houses[2]], X[houses[3]])
-        # print(F)
-        if F <= F_3_1550:
-            homogen_features.append(feature)
-
+    # ANOVA F stat with confidence alpha = 0.05
+    # grade repartition is homogeneous if F <= F_3_1550
+    # we test H0: the distributions are homogeneous against H1: they are not
+    F_3_1550 = 2.6
+    homogen_features = homogen_fonction(feature_dico, feature_list, F_3_1550)
 
     k = 0
     fig = plt.figure(figsize = (20,10), dpi = 100)
     grid = gridspec.GridSpec(1, len(homogen_features))
     
     for feature in homogen_features:
-        xy_dico = freq_per_house(feature_dico[feature], 20)
         plt.subplot(grid[0, k])
-        
-        for house in houses:
-            x = xy_dico[house]['x']
-            y = xy_dico[house]['y']
-            plt.fill(x, y, color= house_colors[house], linewidth=2, label = house, alpha = 0.5)
-        plt.xlim(Quartile(x,0),)
-        plt.ylim(Quartile(y,0),)
-        plt.title(feature_list[k])
-        plt.legend(ncol = 2, fontsize = 'x-small')
+        plot_hist(feature_dico[feature], 20)
         k += 1
 
     plt.tight_layout()
