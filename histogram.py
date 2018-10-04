@@ -7,20 +7,29 @@ from describe import Quartile, Count, Mean
 
 
 ### Quel cours de Poudlard a une repartition des notes homogenes entre les 4 maisons ?
+def convert_float(x):
+    if x != '':
+        try:
+            x = float(x)
+            return x
+        except (TypeError, ValueError):
+            return x
+
+### Quel cours de Poudlard a une repartition des notes homogenes entre les 4 maisons ?
 def read_data2(dataname):
-    with open('../data/' + dataname) as f:
+    with open('data/' + dataname) as f:
         lis=[line for line in f]
         feature_list = lis[0].strip().split(',')[6:] # only the subjects features
         nb_subjects = len(feature_list)
         feature_dico = dict((k,dict()) for k in feature_list)
         for student in lis[1:]:
             house = student.strip().split(',')[1]
-            grades = student.strip().split(',')[6:]
+            grades = student.strip().split(',')[5:]
             for i in range(nb_subjects):
                 if house in feature_dico[feature_list[i]].keys():
-                    feature_dico[feature_list[i]][house].append(grades[i])
+                    feature_dico[feature_list[i]][house].append(convert_float(grades[i]))
                 else:
-                    feature_dico[feature_list[i]][house] = [grades[i]]
+                    feature_dico[feature_list[i]][house] = [convert_float(grades[i])]
         return feature_dico, feature_list
 
 
@@ -64,7 +73,7 @@ def freq_per_house(feature, b = 20): # a dictionnary / b = nb of bins, an intege
         for i in range(1,b+1):
             lis2 = [l for l in lis if (l <= grade_list[i] and l > grade_list[i-1])]
             freq = Count(lis2)/float(nb_student)
-            #grade_dico[grade_list[house]][i] = freq 
+            #grade_dico[grade_list[house]][i] = freq
             xy_dico[house]['x'].extend((grade_list[i-1], grade_list[i]))
             xy_dico[house]['y'].extend((freq, freq))
         xy_dico[house]['x'].append(grade_list[b]) # pour refermer le graph
@@ -73,7 +82,7 @@ def freq_per_house(feature, b = 20): # a dictionnary / b = nb of bins, an intege
     return xy_dico
 
 
-    
+
 
 
 
@@ -93,7 +102,7 @@ if __name__ == '__main__':
     feature_dico, feature_list = read_data2(args.set)
     houses = list(feature_dico[feature_list[0]].keys())
 
-    
+
     homogen_features = []
     for feature in feature_list:
         X = feature_dico[feature]
@@ -106,11 +115,11 @@ if __name__ == '__main__':
     k = 0
     fig = plt.figure(figsize = (20,10), dpi = 100)
     grid = gridspec.GridSpec(1, len(homogen_features))
-    
+
     for feature in homogen_features:
         xy_dico = freq_per_house(feature_dico[feature], 20)
         plt.subplot(grid[0, k])
-        
+
         for house in houses:
             x = xy_dico[house]['x']
             y = xy_dico[house]['y']
@@ -123,8 +132,3 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     plt.show(block = True)
-
-
-
-
-
