@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import copy
+from describe import Mean
 
 
 def cat_to_dummies(df):
@@ -12,23 +13,34 @@ def cat_to_dummies(df):
     print(cat_columns)
     for col in cat_columns:
         categories = df[col].unique()
+        print(categories)
         for i in range(len(categories)-1):
             new_colname = col + '_' + categories[i]
             df2[new_colname] = df2[col]
             df2.loc[df2[new_colname] == categories[i], new_colname] = 1
-            df2.loc[df2[new_colname] != categories[i], new_colname] = 0
+            df2.loc[df2[new_colname] != 1, new_colname] = 0
         df2 = df2.drop(col, 1)
         return df2
-    
-        
+
+def impute_na(df): # pour l'instant mean imputation/ pk pas EM si temps
+    df2 = df.copy()
+    columns = list(df2)
+    for col in columns:
+        df2.loc[df2[col].isnull(), col] = Mean(list(df2[col].dropna()))
+    return df2
+
 def preprocess(dataname):
     df = pd.read_table('../data/'+dataname, sep = ',')
     X_df = df.drop(df.columns[[0,1,2, 3,4]], axis = 1) # get rid of index, name, birthday
     Y_df = df[df.columns[[1]]]
     colnames = list(X_df)
     X_df.apply(pd.to_numeric, errors = 'ignore')
+    # 1rst, we transform categorical variables into dummies
     X_df2 = cat_to_dummies(X_df)
-    return X_df2, Y_df
+    # 2nd, handling Missing Values
+    X_df3 = impute_na(X_df2)
+    # get rid of correlated data
+    return X_df3, Y_df
 
 
 def g(z):
@@ -51,6 +63,8 @@ if __name__ == '__main__':
     X_df, Y_df = preprocess(args.set)
     print(X_df.head())
     print(X_df.isnull().sum())
+
+    
     
 
 
