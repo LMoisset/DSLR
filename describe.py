@@ -2,7 +2,17 @@
 import os
 import argparse
 from math import sqrt
+import numpy as np
 import matplotlib.pyplot as plt
+
+
+def convert_float(x):
+    if x != '':
+        try:
+            x = float(x)
+            return x
+        except (TypeError, ValueError):
+            return x
 
 
 ### GIVES A DICT OF ALL OF THE FEATURES
@@ -12,12 +22,14 @@ def read_data(dataname):
         nb_features = len(lis[0].split(','))-1
         feature_list = lis[0].strip().split(',')[1:]
         first_student = lis[1].strip().split(',')[1:]
-        feature_dico = dict((k, [l]) for k, l in zip(feature_list, first_student))
-        print(feature_list)
+        first_float = []
+        for f in range(len(first_student)):
+            first_float.append(convert_float(first_student[f]))
+        feature_dico = dict((k, [l]) for k, l in zip(feature_list, first_float))
         for i in range(2, len(lis)):
             student = lis[i].strip().split(',')[1:]
             for f in range(len(feature_list)):
-                feature_dico[feature_list[f]].append(student[f])
+                feature_dico[feature_list[f]].append(convert_float(student[f]))
         return feature_dico, feature_list
 
 ### Data Analysis
@@ -31,11 +43,11 @@ def Count(lis):
 def Mean(lis):
     m = 0
     try:
-        lis2 = [float(l) for l in lis if l] # remove empty strings + converts to floats
+        lis2 = [float(l) for l in lis if l]
         for i in lis2:
             m += i
         m = m / len(lis2)
-    except ValueError:
+    except (TypeError, ValueError, ZeroDivisionError):
         m = 'Not numerical'
     return m
 
