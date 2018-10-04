@@ -7,6 +7,15 @@ from describe import Quartile, Count
 
 
 ### Quel cours de Poudlard a une repartition des notes homogenes entre les 4 maisons ?
+def convert_float(x):
+    if x != '':
+        try:
+            x = float(x)
+            return x
+        except (TypeError, ValueError):
+            return x
+
+
 def read_data2(dataname):
     with open('../data/' + dataname) as f:
         lis=[line for line in f]
@@ -18,11 +27,10 @@ def read_data2(dataname):
             grades = student.strip().split(',')[6:]
             for i in range(nb_subjects):
                 if house in feature_dico[feature_list[i]].keys():
-                    feature_dico[feature_list[i]][house].append(grades[i])
+                    feature_dico[feature_list[i]][house].append(convert_float(grades[i]))
                 else:
-                    feature_dico[feature_list[i]][house] = [grades[i]]
+                    feature_dico[feature_list[i]][house] = [convert_float(grades[i])]
         return feature_dico, feature_list
-
 
 def anova4(x, y, z, t):
     x = [float(l) for l in x if l]
@@ -43,6 +51,7 @@ def anova4(x, y, z, t):
     return F
 
 def homogen_fonction(feature_dico, feature_list, F_real):
+    houses = list(feature_dico[feature_list[0]].keys())
     homogen_features = []
     for feature in feature_list:
         X = feature_dico[feature]
@@ -51,9 +60,9 @@ def homogen_fonction(feature_dico, feature_list, F_real):
             homogen_features.append(feature)
     return homogen_features
 
-def freq_per_house(feature, b = 20): # a dictionnary / b = nb of bins, an integer
-    houses = feature.keys()
+def freq_per_house(feature, b): # a dictionnary / b = nb of bins, an integer
     # distribution of the grades for everyone
+    houses = feature.keys()
     all_grades = []
     for house in houses:
         all_grades += feature[house]
@@ -76,17 +85,28 @@ def freq_per_house(feature, b = 20): # a dictionnary / b = nb of bins, an intege
     return xy_dico
 
 
-def plot_hist(feature, b = 20):
-    xy_dico = freq_per_house(feature, b)
-    house_colors = {'Ravenclaw': 'blue', 'Slytherin': 'green', 'Gryffindor' : 'red', 'Hufflepuff' : 'yellow'}
-    for house in houses:
+def plot_hist(feature_dico, feature, b, house_colors):
+    xy_dico = freq_per_house(feature_dico[feature], b)
+    for house in house_colors.keys():
         x = xy_dico[house]['x']
         y = xy_dico[house]['y']
         plt.fill(x, y, color= house_colors[house], linewidth=2, label = house, alpha = 0.5)
     plt.xlim(Quartile(x,0),)
     plt.ylim(Quartile(y,0),)
-    plt.title(feature_list[k])
-    plt.legend(ncol = 2, fontsize = 'x-small')
+
+def plot_homogen_hist(feature_dico, homogen_features, house_colors):
+    k = 0
+    fig = plt.figure(figsize = (20,10), dpi = 100)
+    grid = gridspec.GridSpec(1, len(homogen_features))
+    for feature in homogen_features:
+        plt.subplot(grid[0, k])
+        plot_hist(feature_dico, feature, 20, house_colors)
+        plt.title(feature)
+        plt.legend(ncol = 2, fontsize = 'x-small')
+        k += 1
+    plt.tight_layout()
+    plt.show(block = True)
+
 
 
 
@@ -95,25 +115,18 @@ if __name__ == '__main__':
     parser.add_argument('set', type = str, help = 'Name of the file to read')
     args = parser.parse_args()
     feature_dico, feature_list = read_data2(args.set)
-    houses = list(feature_dico[feature_list[0]].keys())
+    
+    house_colors = {'Ravenclaw': 'blue', 'Slytherin': 'green', 'Gryffindor' : 'red', 'Hufflepuff' : 'yellow'}
 
     # ANOVA F stat with confidence alpha = 0.05
     # grade repartition is homogeneous if F <= F_3_1550
     # we test H0: the distributions are homogeneous against H1: they are not
     F_3_1550 = 2.6
     homogen_features = homogen_fonction(feature_dico, feature_list, F_3_1550)
-
-    k = 0
-    fig = plt.figure(figsize = (20,10), dpi = 100)
-    grid = gridspec.GridSpec(1, len(homogen_features))
     
-    for feature in homogen_features:
-        plt.subplot(grid[0, k])
-        plot_hist(feature_dico[feature], 20)
-        k += 1
+    plot_homogen_hist(feature_dico, homogen_features, house_colors)
 
-    plt.tight_layout()
-    plt.show(block = True)
+    
 
 
 
