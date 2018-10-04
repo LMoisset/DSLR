@@ -2,12 +2,9 @@
 
 import argparse
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
-import numpy as np
-=======
 import matplotlib.gridspec as gridspec
 from describe import Quartile, Count, Mean
->>>>>>> a6da9ef4be298515599a73f16989b2b28d0eb733
+
 
 def convert_float(x):
     if x != '':
@@ -19,14 +16,14 @@ def convert_float(x):
 
 ### Quel cours de Poudlard a une repartition des notes homogenes entre les 4 maisons ?
 def read_data2(dataname):
-    with open('../data/' + dataname) as f:
+    with open('data/' + dataname) as f:
         lis=[line for line in f]
         feature_list = lis[0].strip().split(',')[6:] # only the subjects features
         nb_subjects = len(feature_list)
         feature_dico = dict((k,dict()) for k in feature_list)
         for student in lis[1:]:
             house = student.strip().split(',')[1]
-            grades = student.strip().split(',')[6:]
+            grades = student.strip().split(',')[5:]
             for i in range(nb_subjects):
                 if house in feature_dico[feature_list[i]].keys():
                     feature_dico[feature_list[i]][house].append(convert_float(grades[i]))
@@ -34,34 +31,8 @@ def read_data2(dataname):
                     feature_dico[feature_list[i]][house] = [convert_float(grades[i])]
         return feature_dico, feature_list
 
-def bad_scatter_plot(dict, feature1, feature2, house_colors):
-    list1 = dict[feature1]
-    list2 = dict[feature2]
-    full_x = []
-    full_y = []
-    color = []
-    for house in house_colors.keys():
-        x = list1[house]
-        y = list2[house]
-        full_x = full_x + x
-        full_y = full_y + y
-        col = [house_colors[house]]*len(x)
-        color = color + col
-    plt.plot(full_x, full_y, 'o',color = color, markersize=1)
-    plt.show()
 
-<<<<<<< HEAD
-def scatter_plot(dict, feature1, feature2, house_colors):
-    list1 = dict[feature1]
-    list2 = dict[feature2]
-    for house in house_colors.keys():
-        x = list1[house]
-        y = list2[house]
-        plt.plot(x, y, 'o',color = house_colors[house], label = house, markersize=0.5)
-    plt.xlabel(feature1)
-    plt.ylabel(feature2)
-    plt.show()
-=======
+
 def anova4(x, y, z, t):
     x = [float(l) for l in x if l]
     y = [float(l) for l in y if l]
@@ -102,7 +73,7 @@ def freq_per_house(feature, b = 20): # a dictionnary / b = nb of bins, an intege
         for i in range(1,b+1):
             lis2 = [l for l in lis if (l <= grade_list[i] and l > grade_list[i-1])]
             freq = Count(lis2)/float(nb_student)
-            #grade_dico[grade_list[house]][i] = freq 
+            #grade_dico[grade_list[house]][i] = freq
             xy_dico[house]['x'].extend((grade_list[i-1], grade_list[i]))
             xy_dico[house]['y'].extend((freq, freq))
         xy_dico[house]['x'].append(grade_list[b]) # pour refermer le graph
@@ -111,19 +82,26 @@ def freq_per_house(feature, b = 20): # a dictionnary / b = nb of bins, an intege
     return xy_dico
 
 
-    
-
-
-
-
-
 house_colors = {'Ravenclaw': 'blue', 'Slytherin': 'green', 'Gryffindor' : 'red', 'Hufflepuff' : 'yellow'}
 
 # ANOVA F stat with confidence alpha = 0.05
 # grade repartition is homogeneous if F <= F_3_1550
 F_3_1550 = 2.6
 
->>>>>>> a6da9ef4be298515599a73f16989b2b28d0eb733
+
+
+
+
+def scatter_plot(dict, feature1, feature2, house_colors):
+    list1 = dict[feature1]
+    list2 = dict[feature2]
+    for house in house_colors.keys():
+        x = list1[house]
+        y = list2[house]
+        plt.plot(x, y, 'o',color = house_colors[house], label = house, markersize=0.5)
+    plt.xlabel(feature1)
+    plt.ylabel(feature2)
+    plt.show()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Dataset you want to describe')
@@ -131,23 +109,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     house_colors = dict([('Ravenclaw', 'blue'), ('Slytherin', 'green'), ('Gryffindor', 'red'), ('Hufflepuff', 'yellow')])
     feature_dico, feature_list = read_data2(args.set)
-<<<<<<< HEAD
-    houses = feature_dico[feature_list[0]].keys()
-    for i in range(len(feature_list[6:]) - 1):
-        for j in feature_list[i+7:]:
-            scatter_plot(feature_dico, feature_list[i + 6], j, house_colors)
 
-    #for feature in feature_list:
-    #     print (feature)
-    #     print (feature_dico[feature][10:12])
-
-
-
-#plt.show(block = True)
-=======
-    houses = list(feature_dico[feature_list[0]].keys())
-
-    
     homogen_features = []
     for feature in feature_list:
         X = feature_dico[feature]
@@ -160,11 +122,11 @@ if __name__ == '__main__':
     k = 0
     fig = plt.figure(figsize = (20,10), dpi = 100)
     grid = gridspec.GridSpec(1, len(homogen_features))
-    
+
     for feature in homogen_features:
         xy_dico = freq_per_house(feature_dico[feature], 20)
         plt.subplot(grid[0, k])
-        
+
         for house in houses:
             x = xy_dico[house]['x']
             y = xy_dico[house]['y']
@@ -179,7 +141,16 @@ if __name__ == '__main__':
     plt.show(block = True)
 
 
+    houses = feature_dico[feature_list[0]].keys()
+    for i in range(len(feature_list[6:]) - 1):
+        for j in feature_list[i+7:]:
+            scatter_plot(feature_dico, feature_list[i + 6], j, house_colors)
+
+    #ISOLER LES 3/4 PLUS PROCHES, RESSORTIR QUE CELLES LA
 
 
 
->>>>>>> a6da9ef4be298515599a73f16989b2b28d0eb733
+
+
+
+#plt.show(block = True)
