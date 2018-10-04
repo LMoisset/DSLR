@@ -19,33 +19,23 @@ if __name__ == '__main__':
     l = 0
     m = 0
     fig = plt.figure(figsize = (20,10), dpi = 100)
-    grid = gridspec.GridSpec(4,4)
-    for k in range(int((len(feature_list[6:]) - 1)*len(feature_list[6:])/2)):
-        if k <4:
+    grid = gridspec.GridSpec(10,8)
+    for k in range(int((len(feature_list) - 1)*len(feature_list)/2)):
+        if k <8:
             l = k
         else:
-            m = k//4
-            l = k - 4*m
-
+            m = k//8
+            l = k - 8*m
         plt.subplot(grid[m, l])
-        for i in range(len(feature_list) - 1):
-            for j in feature_list[i:]:
+        for i in range(len(feature_list[10:]) - 1):
+            for j in feature_list[i+1:]:
                 list1 = feature_dico[feature_list[i]]
                 list2 = feature_dico[j]
                 for house in house_colors.keys():
                     x = list1[house]
                     y = list2[house]
-                    plt.fill(x, y, 'o',color = house_colors[house], label = house)
-                #plt.xlabel(feature_list[i + 6])
-                #plt.ylabel(j)
-        plt.show()
-
-        for house in houses:
-            x = xy_dico[house]['x']
-            y = xy_dico[house]['y']
-            plt.fill(x, y, color= house_colors[house], linewidth=2, label = house, alpha = 0.5)
-
-        plt.title(feature_list[k])
-        plt.legend(ncol = 2, fontsize = 'x-small')
+                    plt.fill(x, y, 'o', color = house_colors[house], label = house)
     plt.tight_layout()
     plt.show(block = True)
+                #plt.xlabel(feature_list[i + 6])
+                #plt.ylabel(j)
