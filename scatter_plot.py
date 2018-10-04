@@ -14,9 +14,7 @@ def scatter_plot(dict, feature1, feature2, house_colors):
         x = list1[house]
         y = list2[house]
         plt.plot(x, y, 'o',color = house_colors[house], label = house, markersize=0.5)
-    plt.xlabel(feature1)
-    plt.ylabel(feature2)
-    plt.show()
+    return plt
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Dataset you want to describe')
@@ -28,7 +26,10 @@ if __name__ == '__main__':
     houses = feature_dico[feature_list[0]].keys()
     for i in range(len(feature_list[6:]) - 1):
         for j in feature_list[i+7:]:
-            scatter_plot(feature_dico, feature_list[i + 6], j, house_colors)
+            plt = scatter_plot(feature_dico, feature_list[i + 6], j, house_colors)
+            plt.xlabel(feature_list[i + 6])
+            plt.ylabel(j)
+            plt.show()
 
     #ISOLER LES 3/4 PLUS PROCHES, RESSORTIR QUE CELLES LA
 
