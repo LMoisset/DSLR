@@ -9,6 +9,8 @@ from describe import Mean
 import pickle
 
 
+## TEST
+
 class Matrix(list):
     def __init__(self, mat):
         super().__init__(mat)
@@ -159,7 +161,6 @@ def gradient(X, Y, theta, j): # X is an array, Y a column array
 
 
 
-    
        
 
 
