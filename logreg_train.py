@@ -3,8 +3,10 @@
 import argparse
 import copy
 import math
+import pandas as pd
+import numpy as np
 from describe import Mean
-#import pickle
+import pickle
 
 
 ## TEST
@@ -37,8 +39,8 @@ class Matrix(list):
             raise TypeError('The matrix are not compatible for multiplication')
         return Matrix(mat)
 
-    def transpose(self): 
-        return Matrix([[row[i] for row in self] for i in range(self.ncol)])    
+    def transpose(self):
+        return Matrix([[row[i] for row in self] for i in range(self.ncol)])
 
     def show(self):
         for row in self:
@@ -79,22 +81,22 @@ class Matrix(list):
                 if self[k][i] not in unique_values:
                     unique_values.append(self[k][i])
         return unique_values
-    
+
     def count_null(self):
         null_dico = dict((k, 0) for k in range(self.ncol))
         for i in range(self.ncol):
             for j in range(self.nrow):
                 if self[j][i] == '':
                     null_dico[i] +=1
-        return null_dico  
+        return null_dico
 
 
-        
+
 def read_data3(dataname):
     with open('../data/' + dataname) as f:
         return Matrix([line.strip().split(',') for line in f])
 
-def cat_to_dummies(X, features): 
+def cat_to_dummies(X, features):
     ind_to_drop = []
     for i in range(X.ncol):
         cat = X.unique(i, axis = 1)
@@ -126,15 +128,17 @@ def preprocess(dataname):
     # 2nd, handling Missing Values
     X_3 = impute_na(X_2)
     print(X_3.count_null())
-    # get rid of correlated data 
+    # get rid of correlated data
     return X_3, Y, features
 
 
-def g(z):  # z est un reel
-    return 1 / (1 + z.product(-1).Exp())
+def g(z):
+    res = 1 / (1 + z.product(-1).Exp())
+    return res
 
 def h(X, theta): # X is here an individual transformed into a column
-    return g(theta.transpose().dot(X))
+    res = g(theta.transpose.dot(X))
+    return res
 
 def loss_function(X, Y, theta): # X is an array, Y a column array
     m = len(Y)
@@ -143,14 +147,12 @@ def loss_function(X, Y, theta): # X is an array, Y a column array
         J += -1/m * (Y[i]*log(h(X.col(i), theta))) + (1-Y[i])*log(1-h(X.col(i), theta))
     return J
 
-def derive_part(X, Y, theta, j): # X is an array, Y a column array
-    m = len(Y)
+def gradient(X, Y, theta, j): # X is an array, Y a column array
+    m = len(Y)m
     dJ = 0
     for i in range(m):
        dJ += 1/m*(h(X[[i]].transpose(), theta) - Y[i])*X[[i],[j]]
     return dJ
-
-
 
 
 #def gradient_descent(X, Y, theta, learning_rate = 0.01, iterations = 100):
@@ -159,7 +161,7 @@ def derive_part(X, Y, theta, j): # X is an array, Y a column array
 
 
 
-       
+
 
 
 
@@ -175,22 +177,13 @@ if __name__ == '__main__':
     #test.show()
     #test.drop([], axis = 1).show()
     #print(test.unique(0, axis = 1))
-    
 
-    #X, Y, features = preprocess(args.set)
-    #print(features)
-    theta = Matrix([[1],[2],[3]])
-    X = Matrix([[4], [5], [6]])
-    theta.transpose().dot(X).show()
-    theta.product(-1).show()
-    #print(h(theta,X))
+
+    X, Y, features = preprocess(args.set)
+    print(features)
     #print(X)
     #print(Y)
     #print(Y[0])
-    #print(X[0])
+    print(X[0])
     #print(X[[0]][0])
     #print(len(X))
-
-
-
-
