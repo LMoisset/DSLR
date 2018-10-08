@@ -3,10 +3,8 @@
 import argparse
 import copy
 import math
-import pandas as pd
-import numpy as np
 from describe import Mean
-import pickle
+#import pickle
 
 
 ## TEST
@@ -132,13 +130,11 @@ def preprocess(dataname):
     return X_3, Y, features
 
 
-def g(z):
-    res = 1 / (1 + z.Exp().product(-1))
-    return res
+def g(z):  # z est un reel
+    return 1 / (1 + z.product(-1).Exp())
 
 def h(X, theta): # X is here an individual transformed into a column
-    res = g(theta.transpose.dot(X))
-    return res
+    return g(theta.transpose().dot(X))
 
 def loss_function(X, Y, theta): # X is an array, Y a column array
     m = len(Y)
@@ -147,12 +143,14 @@ def loss_function(X, Y, theta): # X is an array, Y a column array
         J += -1/m * (Y[i]*log(h(X.col(i), theta))) + (1-Y[i])*log(1-h(X.col(i), theta))
     return J
 
-def gradient(X, Y, theta, j): # X is an array, Y a column array
+def derive_part(X, Y, theta, j): # X is an array, Y a column array
     m = len(Y)
     dJ = 0
     for i in range(m):
        dJ += 1/m*(h(X[[i]].transpose(), theta) - Y[i])*X[[i],[j]]
     return dJ
+
+
 
 
 #def gradient_descent(X, Y, theta, learning_rate = 0.01, iterations = 100):
@@ -179,12 +177,17 @@ if __name__ == '__main__':
     #print(test.unique(0, axis = 1))
     
 
-    X, Y, features = preprocess(args.set)
-    print(features)
+    #X, Y, features = preprocess(args.set)
+    #print(features)
+    theta = Matrix([[1],[2],[3]])
+    X = Matrix([[4], [5], [6]])
+    theta.transpose().dot(X).show()
+    theta.product(-1).show()
+    #print(h(theta,X))
     #print(X)
     #print(Y)
     #print(Y[0])
-    print(X[0])
+    #print(X[0])
     #print(X[[0]][0])
     #print(len(X))
 
