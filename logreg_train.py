@@ -131,10 +131,10 @@ def preprocess(dataname):
 
 
 def g(z):  # z est un reel
-    return 1 / (1 + z.product(-1).Exp())
+    return 1 / (1 + z.product(-1).Exp()[0][0])
 
 def h(X, theta): # X is here an individual transformed into a column
-    return g(theta.transpose().dot(X))
+    return g(Matrix(theta.transpose().dot(X)))
 
 def loss_function(X, Y, theta): # X is an array, Y a column array
     m = len(Y)
@@ -181,8 +181,10 @@ if __name__ == '__main__':
     #print(features)
     theta = Matrix([[1],[2],[3]])
     X = Matrix([[4], [5], [6]])
-    theta.transpose().dot(X).show()
-    theta.product(-1).show()
+    #theta.transpose().dot(X).show()
+    #theta2 = Matrix([[1]])
+    #theta2.product(-1).Exp().show()
+    print(h(X, theta))
     #print(h(theta,X))
     #print(X)
     #print(Y)
