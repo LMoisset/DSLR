@@ -1,13 +1,10 @@
 #! /usr/bin/python
 
 import argparse
-import copy
+#import copy
 import math
 from describe import Mean
-#import pickle
 
-
-## TEST
 
 class Matrix(list):
     def __init__(self, mat):
@@ -108,6 +105,19 @@ class Matrix(list):
                     null_dico[i] +=1
         return null_dico  
 
+    def standardize(self):
+        mat = [[0]*self.ncol for i in range(self.nrow)]
+        for j in range(self.ncol):
+            mean_col = Mean([row[j] for row in self])
+            std_col = math.sqrt(sum([(row[j] - mean_col)**2 for row in self])/float(self.nrow -1))
+            for i in range(self.nrow):
+                mat[i][j] = (self[i][j] - mean_col)/ float(std_col)
+        return Matrix(mat)
+                
+            
+           
+
+
 
         
 def read_data3(dataname):
@@ -147,20 +157,18 @@ def preprocess(dataname):
     features = X[0]
     X = X.drop([0], axis = 0)
     X = X.to_float()
-    # 1rst, we transform categorical variables into dummies
-    X_2, features = cat_to_dummies(X, features, all_cat = False)
+    X_2, features = cat_to_dummies(X, features, all_cat = False) # handle categorical variables
     #print(X_2.count_null())
-    # 2nd, handling Missing Values
-    X_3 = impute_na(X_2)
+    X_3 = impute_na(X_2) # get rid of missing values
+    X_4 = X_3.standardize()
     #print(X_3.count_null())
     # get rid of correlated data
     Y, y_name = cat_to_dummies(Y, ['House'], all_cat = True)
-    return X_3, Y, features, y_name
+    return X_4, Y, features, y_name
 
 
 def g(z):  # z est une matrix de dim 1/1
-    #print(-z[0][0])
-    return 1 / (1 + math.exp(-z[0][0]))
+    return 1 / float(1 + math.exp(-z[0][0]))
 
 def h(X, theta): # X is here an individual transformed into a lign / theta une colonne
     return g(Matrix(X.dot(theta)))
@@ -176,7 +184,7 @@ def delta(X, Y, theta, j): # X is an array, Y a column array
     m = len(Y)
     dJ = 0
     for i in range(m):
-       dJ += 1/m*(h(X.row(i), theta) - Y[i][0])*X[i][j]
+        dJ += 1/m*(h(X.row(i), theta) - Y[i][0])*X[i][j]
     return dJ
 
 def gradient(X, Y, theta):
@@ -188,11 +196,15 @@ def gradient_descent(X, Y, num_iter, learning_rate):
     for i in range(num_iter):
         grad = gradient(X,Y,theta)
         theta = theta.sub(grad.product(learning_rate))
-        if i % 100 == 0:
-            print(loss_function(X,Y,theta))
+        if i % 500 == 0:
+            print('Loss Function after '+ str(i)+' iterations : ', loss_function(X,Y,theta))
     return theta
 
-
+def one_vs_all_fit(X, Y, num_iter, learning_rate):
+    all_theta = gradient_descent(X, Y.col(0), num_iter, learning_rate)
+    for i in range(1, Y.ncol):
+        all_theta.append_col(gradient_descent(X, Y.col(i), num_iter, learning_rate)) ## PB : en liste - a transformer en colonnes
+    return all_theta
        
 
 
@@ -202,18 +214,31 @@ if __name__ == '__main__':
     parser.add_argument('set', type = str, help = 'Name of the file to read')
     args = parser.parse_args()
 
-    #X = read_data3(args.set)
-    #print(X.drop([0], axis = 0)[0])
-    #test = Matrix([['1','2', '3'], ['4', '5', '6']])
-    #t2 = [float(x) if x.replace('.', '',1).isdigit() else x for x in test]
-    #test.show()
-    #test.drop([], axis = 1).show()
-    #print(test.unique(0, axis = 1))
-    
-
     X, Y, features, y_name = preprocess(args.set)
+    all_theta = one_vs_all_fit(X,Y,100, 0.1)
+    all_theta.show()
+
+
+
+
+
+
+
+
+
+    #theta = gradient_descent(X,Y, 10000, 0.1)
+    #print(theta)
+    #print(gradient(X,Y, theta).product(0.01))
+    #print(gradient_descent(X,Y, 100, 0.01))
+    #X.row(508).show()
+    #theta = Matrix([[0] for i in range(X.ncol)])
+    #print(loss_function(X,Y,theta))
+    #print(h(X, theta))
+    #print(delta(X,Y, theta, 0))
+
+    #print(gradient_descent(X,Y,100, 0.01))
     #Y.col(0).show()
-    print(gradient_descent(X,Y, 1000, 0.1))
+    #print(gradient_descent(X,Y, 1000, 0.1))
     
     #print(features)
     #theta = Matrix([[1],[2],[3]])
