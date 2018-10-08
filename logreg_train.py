@@ -37,6 +37,26 @@ class Matrix(list):
             raise TypeError('The matrix are not compatible for multiplication')
         return Matrix(mat)
 
+    def add(self, mat2):
+        if (self.ncol == mat2.ncol) and (self.nrow == mat2.nrow):
+            mat = [[0]*self.ncol for i in range(self.nrow)]
+            for i in range(self.nrow):
+                for j in range(mat2.ncol):
+                    mat[i][j] = self[i][j] + mat2[i][j]
+        else:
+            raise TypeError('The matrix dont have the same size')
+        return Matrix(mat)
+
+    def sub(self, mat2):
+        if (self.ncol == mat2.ncol) and (self.nrow == mat2.nrow):
+            mat = [[0]*self.ncol for i in range(self.nrow)]
+            for i in range(self.nrow):
+                for j in range(mat2.ncol):
+                    mat[i][j] = self[i][j] - mat2[i][j]
+        else:
+            raise TypeError('The matrix dont have the same size')
+        return Matrix(mat)
+
     def transpose(self): 
         return Matrix([[row[i] for row in self] for i in range(self.ncol)])    
 
@@ -94,17 +114,24 @@ def read_data3(dataname):
     with open('../data/' + dataname) as f:
         return Matrix([line.strip().split(',') for line in f])
 
-def cat_to_dummies(X, features): 
+def cat_to_dummies(X, features, all_cat = True): 
     ind_to_drop = []
     for i in range(X.ncol):
         cat = X.unique(i, axis = 1)
         if len(cat) <5: # si moins de 5 uniques, on assume que la var est cat
             ind_to_drop.append(i)
-            for j in range(len(cat)-1):
-                new_cat = features[i] + '_' + cat[j]
-                new_col = [1 if x == cat[j] else 0 for x in [row[i] for row in X]]
-                X.append_col(new_col)
-                features.append(new_cat)
+            if all_cat == True:
+                for j in range(len(cat)):
+                    new_cat = features[i] + '_' + cat[j]
+                    new_col = [1 if x == cat[j] else 0 for x in [row[i] for row in X]]
+                    X.append_col(new_col)
+                    features.append(new_cat)
+            else:
+                for j in range(len(cat)-1):
+                    new_cat = features[i] + '_' + cat[j]
+                    new_col = [1 if x == cat[j] else 0 for x in [row[i] for row in X]]
+                    X.append_col(new_col)
+                    features.append(new_cat)
     X = X.drop(ind_to_drop, axis = 1)
     features = [features[i] for i in range(len(features)) if i not in ind_to_drop]
     return X, features
@@ -115,48 +142,55 @@ def impute_na(X): # pour l'instant mean imputation
 def preprocess(dataname):
     df = read_data3('../data/'+dataname)
     Y = df.col(1)
-    print(df[0])
+    Y = Y.drop([0], axis = 0)
     X = df.drop([0,1,2,3,4], axis = 1) # get rid of index, house, firstname, lastname, birthday
     features = X[0]
     X = X.drop([0], axis = 0)
     X = X.to_float()
     # 1rst, we transform categorical variables into dummies
-    X_2, features = cat_to_dummies(X,features)
-    print(X_2.count_null())
+    X_2, features = cat_to_dummies(X, features, all_cat = False)
+    #print(X_2.count_null())
     # 2nd, handling Missing Values
     X_3 = impute_na(X_2)
-    print(X_3.count_null())
-    # get rid of correlated data 
-    return X_3, Y, features
+    #print(X_3.count_null())
+    # get rid of correlated data
+    Y, y_name = cat_to_dummies(Y, ['House'], all_cat = True)
+    return X_3, Y, features, y_name
 
 
-def g(z):  # z est un reel
-    return 1 / (1 + z.product(-1).Exp()[0][0])
+def g(z):  # z est une matrix de dim 1/1
+    #print(-z[0][0])
+    return 1 / (1 + math.exp(-z[0][0]))
 
-def h(X, theta): # X is here an individual transformed into a column
-    return g(Matrix(theta.transpose().dot(X)))
+def h(X, theta): # X is here an individual transformed into a lign / theta une colonne
+    return g(Matrix(X.dot(theta)))
 
 def loss_function(X, Y, theta): # X is an array, Y a column array
     m = len(Y)
     J = 0
     for i in range(m):
-        J += -1/m * (Y[i]*log(h(X.col(i), theta))) + (1-Y[i])*log(1-h(X.col(i), theta))
+        J += -1/m * (Y[i][0]*math.log(h(X.row(i), theta)) + (1-Y[i][0])*math.log(1-h(X.row(i), theta)))
     return J
 
-def derive_part(X, Y, theta, j): # X is an array, Y a column array
+def delta(X, Y, theta, j): # X is an array, Y a column array
     m = len(Y)
     dJ = 0
     for i in range(m):
-       dJ += 1/m*(h(X[[i]].transpose(), theta) - Y[i])*X[[i],[j]]
+       dJ += 1/m*(h(X.row(i), theta) - Y[i][0])*X[i][j]
     return dJ
 
+def gradient(X, Y, theta):
+    return Matrix([[delta(X,Y,theta,j)] for j in range(X.ncol)])
 
 
-
-#def gradient_descent(X, Y, theta, learning_rate = 0.01, iterations = 100):
-#    m = len(Y)
-#    cost = np.zeros(iterations)
-
+def gradient_descent(X, Y, num_iter, learning_rate):
+    theta = Matrix([[0] for i in range(X.ncol)])
+    for i in range(num_iter):
+        grad = gradient(X,Y,theta)
+        theta = theta.sub(grad.product(learning_rate))
+        if i % 100 == 0:
+            print(loss_function(X,Y,theta))
+    return theta
 
 
        
@@ -177,14 +211,17 @@ if __name__ == '__main__':
     #print(test.unique(0, axis = 1))
     
 
-    #X, Y, features = preprocess(args.set)
+    X, Y, features, y_name = preprocess(args.set)
+    #Y.col(0).show()
+    print(gradient_descent(X,Y, 1000, 0.1))
+    
     #print(features)
-    theta = Matrix([[1],[2],[3]])
-    X = Matrix([[4], [5], [6]])
+    #theta = Matrix([[1],[2],[3]])
+    #X = Matrix([[4], [5], [6]])
     #theta.transpose().dot(X).show()
     #theta2 = Matrix([[1]])
     #theta2.product(-1).Exp().show()
-    print(h(X, theta))
+    #print(h(X, theta))
     #print(h(theta,X))
     #print(X)
     #print(Y)
@@ -192,7 +229,7 @@ if __name__ == '__main__':
     #print(X[0])
     #print(X[[0]][0])
     #print(len(X))
-
+    #print(gradient_descent(X,Y1, 10000, 0.01))
 
 
 
