@@ -31,11 +31,4 @@ if __name__ == '__main__':
             plt.ylabel(j)
             plt.show()
 
-    #ISOLER LES 3/4 PLUS PROCHES, RESSORTIR QUE CELLES LA
-
-
-
-
-
-
 #plt.show(block = True)
