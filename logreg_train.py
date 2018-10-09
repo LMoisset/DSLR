@@ -1,5 +1,5 @@
 #! /usr/bin/python
-
+import csv
 import argparse
 import copy
 import math
@@ -57,8 +57,8 @@ class Matrix(list):
             raise TypeError('The matrix dont have the same size')
         return Matrix(mat)
 
-    def transpose(self): 
-        return Matrix([[row[i] for row in self] for i in range(self.ncol)])    
+    def transpose(self):
+        return Matrix([[row[i] for row in self] for i in range(self.ncol)])
 
     def show(self):
         for row in self:
@@ -99,22 +99,22 @@ class Matrix(list):
                 if self[k][i] not in unique_values:
                     unique_values.append(self[k][i])
         return unique_values
-    
+
     def count_null(self):
         null_dico = dict((k, 0) for k in range(self.ncol))
         for i in range(self.ncol):
             for j in range(self.nrow):
                 if self[j][i] == '':
                     null_dico[i] +=1
-        return null_dico  
+        return null_dico
 
 
-        
+
 def read_data3(dataname):
     with open('../data/' + dataname) as f:
         return Matrix([line.strip().split(',') for line in f])
 
-def cat_to_dummies(X, features, all_cat = True): 
+def cat_to_dummies(X, features, all_cat = True):
     ind_to_drop = []
     for i in range(X.ncol):
         cat = X.unique(i, axis = 1)
@@ -159,8 +159,12 @@ def preprocess(dataname):
 
 
 def g(z):  # z est une matrix de dim 1/1
+    try:
+        ans = 1 / (1 + math.exp(-z[0][0]))
+    except OverflowError:
+        ans = 0.000001
     #print(-z[0][0])
-    return 1 / (1 + math.exp(-z[0][0]))
+    return ans
 
 def h(X, theta): # X is here an individual transformed into a lign / theta une colonne
     return g(Matrix(X.dot(theta)))
@@ -176,7 +180,7 @@ def delta(X, Y, theta, j): # X is an array, Y a column array
     m = len(Y)
     dJ = 0
     for i in range(m):
-       dJ += 1/m*(h(X.row(i), theta) - Y[i][0])*X[i][j]
+        dJ += 1/m*(h(X.row(i), theta) - Y[i][0])*X[i][j]
     return dJ
 
 def gradient(X, Y, theta):
@@ -188,12 +192,13 @@ def gradient_descent(X, Y, num_iter, learning_rate):
     for i in range(num_iter):
         grad = gradient(X,Y,theta)
         theta = theta.sub(grad.product(learning_rate))
-        if i % 100 == 0:
-            print(loss_function(X,Y,theta))
-    return theta
+        #print(loss_function(X,Y,theta))
+    with open('theta_weights.csv', mode='w') as weights:
+        weights_writer = csv.writer(weights, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        weights_writer.writerow(theta)
 
 
-       
+
 
 
 
@@ -209,12 +214,12 @@ if __name__ == '__main__':
     #test.show()
     #test.drop([], axis = 1).show()
     #print(test.unique(0, axis = 1))
-    
+
 
     X, Y, features, y_name = preprocess(args.set)
     #Y.col(0).show()
-    print(gradient_descent(X,Y, 1000, 0.1))
-    
+    print(gradient_descent(X,Y, 1000, 0.01))
+
     #print(features)
     #theta = Matrix([[1],[2],[3]])
     #X = Matrix([[4], [5], [6]])
@@ -231,5 +236,4 @@ if __name__ == '__main__':
     #print(len(X))
     #print(gradient_descent(X,Y1, 10000, 0.01))
 
-
-
+    # ENEVER LES COLONNES INUTILES UNE FOIS que cela marche hhoho
