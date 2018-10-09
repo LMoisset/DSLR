@@ -82,13 +82,16 @@ def gradient_descent(X, Y, num_iter, learning_rate):
             print('Loss Function after '+ str(i)+' iterations : ', loss_function(X,Y,theta))
     return theta
 
-def one_vs_all_fit(X, Y, num_iter, learning_rate):
+def one_vs_all_fit(X, Y, y_name, num_iter, learning_rate:
     all_theta = gradient_descent(X, Y.col(0), num_iter, learning_rate)
     for i in range(1, Y.ncol):
-        all_theta.append_col(gradient_descent(X, Y.col(i), num_iter, learning_rate)) ## PB : en liste - a transformer en colonnes
+        all_theta.append_col(gradient_descent(X, Y.col(i), num_iter, learning_rate).to_list()) 
     with open('../data/theta_weights.csv', mode='w') as weights:
+        weights.write(l for l in y_name)
+        weights.write('\t')
         for line in all_theta:
-            weights.write(line)
+            weights.write(l for l in line)
+	    weights.write('\t')
     return all_theta
 
 
@@ -100,7 +103,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     X, Y, features, y_name = preprocess(args.set)
-    all_theta = one_vs_all_fit(X,Y,1000, 0.1)
+    all_theta = one_vs_all_fit(X,Y, y_name, 1000, 0.1)
     all_theta.show()
 
 
