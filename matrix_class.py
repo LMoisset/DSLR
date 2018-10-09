@@ -113,6 +113,9 @@ class Matrix(list):
                 mat[i][j] = (self[i][j] - mean_col)/ float(std_col)
         return Matrix(mat)
 
+    def to_list(self):
+        return list([item for sublist in self for item in sublist])
+
 
 def read_data3(dataname):
     with open('../data/' + dataname) as f:
