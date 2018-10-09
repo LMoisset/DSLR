@@ -7,3 +7,6 @@ from matrix_class import Matrix, read_data3
 def retrieve_weights(file_name):
     all_theta = read_data3(file_name)
     return all_theta
+
+def predict(X, file_name):
+    result = X.dot(file_name)
