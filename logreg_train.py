@@ -84,9 +84,9 @@ def gradient_descent(X, Y, num_iter, learning_rate):
     for i in range(num_iter):
         grad = gradient(X,Y,theta)
         theta = theta.sub(grad.product(learning_rate))
-        if i % 500 == 0:
-            print 'Loss Function after '+ str(i)+' iterations : ', loss_function(X,Y,theta)
-    print 'Final Loss function : ', loss_function(X,Y,theta)
+        if i % 10 == 0:
+            print ('Loss Function after '+ str(i)+' iterations : ', loss_function(X,Y,theta))
+    print ('Final Loss function : ', loss_function(X,Y,theta))
     return theta
 
 

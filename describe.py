@@ -16,7 +16,7 @@ def convert_float(x):
 
 ### GIVES A DICT OF ALL OF THE FEATURES
 def read_data(dataname):
-    with open('data/' + dataname) as f:
+    with open('../data/' + dataname) as f:
         lis=[line for line in f]
         nb_features = len(lis[0].split(','))-1
         feature_list = lis[0].strip().split(',')[1:]
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     feature_dico, feature_list = read_data(args.set)
 
     res = ['Feature', 'Count', 'Mean', 'Std', 'Min', '0.25%', '0.5%', 'O.75%', 'Max']
-    print '%s' % '\t'.join([str(x) for x in res])
+    print ('%s' % '\t'.join([str(x) for x in res]))
 
     for feature in feature_list:
         res = [feature]
@@ -95,4 +95,4 @@ if __name__ == '__main__':
         for i in [0, 0.25, 0.5, 0.75, 1]:
             res.append(Quartile(list_no_nas, i))
         if res.count('Not numerical') < 3:
-            print '%s' % '\t'.join([str(x) for x in res])
+            print ('%s' % '\t'.join([str(x) for x in res]))

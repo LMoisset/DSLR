@@ -45,9 +45,9 @@ def anova4(x, y, z, t):
     SSwithin  = sum([l**2 for l in tot]) - sum(tot)**2/float(len(tot))
     dfb = len(tot_nest) - 1
     dfw = len(tot)- len(tot_nest)
-    MSbetween = SSbetween/ dfb
+    MSbetween = SSbetween / dfb
     MSwithin = SSwithin / dfw
-    F = MSbetween /MSwithin
+    F = MSbetween / MSwithin
     return F
 
 def homogen_fonction(feature_dico, feature_list, F_real):
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     parser.add_argument('set', type = str, help = 'Name of the file to read')
     args = parser.parse_args()
     feature_dico, feature_list = read_data2(args.set)
-    
+
     house_colors = {'Ravenclaw': 'blue', 'Slytherin': 'green', 'Gryffindor' : 'red', 'Hufflepuff' : 'yellow'}
 
     # ANOVA F stat with confidence alpha = 0.05
@@ -121,12 +121,5 @@ if __name__ == '__main__':
     # we test H0: the distributions are homogeneous against H1: they are not
     F_3_1550 = 2.6
     homogen_features = homogen_fonction(feature_dico, feature_list, F_3_1550)
-    
+
     plot_homogen_hist(feature_dico, homogen_features, house_colors)
-
-    
-
-
-
-
-

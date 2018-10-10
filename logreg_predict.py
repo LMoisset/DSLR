@@ -60,7 +60,7 @@ if __name__ == '__main__':
     res = predict(X, all_theta, house_dico)
     if args.count == 'True':
         accuracy = assess_result(Y, res, house_dico)
-        print accuracy
+        print (accuracy)
     else:
         X_test = return_predict(args.set, res)
         write_csv(Matrix(X_test[1:]), X_test[0], 'result_test')

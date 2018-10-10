@@ -57,7 +57,7 @@ class Matrix(list):
 
     def show(self):
         for row in self:
-            print '%s' % '\t'.join([str(x) for x in row])
+            print ('%s' % '\t'.join([str(x) for x in row]))
 
     def append_col(self, col): # col should be a list here
         if self.nrow == len(col):
