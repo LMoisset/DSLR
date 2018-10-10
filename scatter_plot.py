@@ -1,6 +1,5 @@
 import argparse
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 from describe import Quartile, Count, Mean
 from histogram import read_data2
 
@@ -38,6 +37,3 @@ if __name__ == '__main__':
         plt.xlabel(feature_list[1])
         plt.ylabel(feature_list[3])
         plt.show()
-
-
-#plt.show(block = True)
