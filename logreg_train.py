@@ -45,8 +45,6 @@ def preprocess(dataname):
     # to predict, so we can try without them.
     X = df.drop([0,1,2,3,4, 6, 7], axis = 1) # get rid of index, house, firstname,
     # lastname, birthday, arithmancy, astronomy, care of magical creatures
-
-
     features = X[0]
     X = X.drop([0], axis = 0)
     X = X.to_float()
@@ -61,7 +59,7 @@ def preprocess(dataname):
 
 
 def g(z):  # z est une matrix de dim 1/1
-    return 1 / float(1 + math.exp(-z[0][0]))
+    return float(1) / float(1 + math.exp(-z[0][0]))
 
 def h(X, theta): # X is here an individual transformed into a lign / theta une colonne
     return g(Matrix(X.dot(theta)))
@@ -70,14 +68,14 @@ def loss_function(X, Y, theta): # X is an array, Y a column array
     m = len(Y)
     J = 0
     for i in range(m):
-        J += -1/m * (Y[i][0]*math.log(h(X.row(i), theta)) + (1-Y[i][0])*math.log(1-h(X.row(i), theta)))
+        J += float(-1)/float(m) * float((Y[i][0]*math.log(h(X.row(i), theta)) + (1-Y[i][0])*math.log(1-h(X.row(i), theta))))
     return J
 
 def delta(X, Y, theta, j): # X is an array, Y a column array
     m = len(Y)
     dJ = 0
     for i in range(m):
-        dJ += 1/m*(h(X.row(i), theta) - Y[i][0])*X[i][j]
+        dJ += float(1)/float(m)*float((h(X.row(i), theta) - Y[i][0])*X[i][j])
     return dJ
 
 def gradient(X, Y, theta):
@@ -90,8 +88,8 @@ def gradient_descent(X, Y, num_iter, learning_rate):
         grad = gradient(X,Y,theta)
         theta = theta.sub(grad.product(learning_rate))
         if i % 500 == 0:
-            print('Loss Function after '+ str(i)+' iterations : ', loss_function(X,Y,theta))
-    print('Final Loss function : ', loss_function(X,Y,theta))
+            print 'Loss Function after '+ str(i)+' iterations : ', loss_function(X,Y,theta)
+    print 'Final Loss function : ', loss_function(X,Y,theta)
     return theta
 
 
@@ -118,42 +116,3 @@ if __name__ == '__main__':
 
     X, Y, features, y_name = preprocess(args.set)
     all_theta = one_vs_all_fit(X,Y, y_name, 1000, 0.1)
-
-
-
-
-
-
-
-
-    #theta = gradient_descent(X,Y, 10000, 0.1)
-    #print(theta)
-    #print(gradient(X,Y, theta).product(0.01))
-    #print(gradient_descent(X,Y, 100, 0.01))
-    #X.row(508).show()
-    #theta = Matrix([[0] for i in range(X.ncol)])
-    #print(loss_function(X,Y,theta))
-    #print(h(X, theta))
-    #print(delta(X,Y, theta, 0))
-
-    #print(gradient_descent(X,Y,100, 0.01))
-    #Y.col(0).show()
-    #print(gradient_descent(X,Y, 1000, 0.1))
-
-    #print(features)
-    #theta = Matrix([[1],[2],[3]])
-    #X = Matrix([[4], [5], [6]])
-    #theta.transpose().dot(X).show()
-    #theta2 = Matrix([[1]])
-    #theta2.product(-1).Exp().show()
-    #print(h(X, theta))
-    #print(h(theta,X))
-    #print(X)
-    #print(Y)
-    #print(Y[0])
-    #print(X[0])
-    #print(X[[0]][0])
-    #print(len(X))
-    #print(gradient_descent(X,Y1, 10000, 0.01))
-
-    # ENEVER LES COLONNES INUTILES UNE FOIS que cela marche hhoho

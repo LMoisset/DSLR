@@ -30,8 +30,12 @@ def return_predict(X, res):
         X_test[i+1][1] = res[i][0]
     return X_test
 
-def assess_result(X_train, X_pred):
-    
+def assess_result(Y, res):
+    true_pred = 0
+    for i in range(Y.nrow):
+        if res[i][0] == Y[i][0]:
+            true_pred += 1
+    return true_pred / Y.nrow
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Dataset you want to describe')
@@ -50,7 +54,7 @@ if __name__ == '__main__':
 
     res = predict(X, all_theta, house_dico)
     if args.count == True:
-        assess_result(Y, res)
-
-    X_test = return_predict(args.set, res)
-    write_csv(Matrix(X_test[1:]), X_test[0], 'result_test')
+        print(assess_result(Y, res))
+    else:
+        X_test = return_predict(args.set, res)
+        write_csv(Matrix(X_test[1:]), X_test[0], 'result_test')
