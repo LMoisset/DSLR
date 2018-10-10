@@ -40,11 +40,8 @@ def preprocess(dataname):
     # the dark arts seemed to be extremely similar. We therefore can try predicting
     # without one of them (Astronomy).
 
-    # We also saw with the histograms that Arithmancy and Care of Magical Creatures
-    # have a similar repartition in each house, thus only adding noise when trying
-    # to predict, so we can try without them.
-    X = df.drop([0,1,2,3,4, 6, 7], axis = 1) # get rid of index, house, firstname,
-    # lastname, birthday, arithmancy, astronomy, care of magical creatures
+    X = df.drop([0,1,2,3,4,7], axis = 1) # get rid of index, house, firstname,
+    # lastname, birthday, astronomy
     features = X[0]
     X = X.drop([0], axis = 0)
     X = X.to_float()

@@ -30,18 +30,23 @@ def return_predict(X, res):
         X_test[i+1][1] = res[i][0]
     return X_test
 
-def assess_result(Y, res):
+def assess_result(Y, res, house_dico):
     true_pred = 0
+    Y_true_col = Matrix([[0] for i in range(Y.nrow)])
     for i in range(Y.nrow):
-        if res[i][0] == Y[i][0]:
+        Y_true_col[i][0] = house_dico[index_max(Y[i])]
+        if res[i][0] == Y_true_col[i][0]:
             true_pred += 1
-    return true_pred / Y.nrow
+    Y_train_res = Y_true_col.append_col(res.to_list())
+    accuracy = float(true_pred) / float(Y.nrow)
+    write_csv(Matrix(Y_train_res), ['Y_true', 'Y_pred'], 'result_train')
+    return accuracy
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Dataset you want to describe')
     parser.add_argument('set', type = str, help = 'Name of the file to read')
     parser.add_argument('theta', type = str, help = 'Weights of the features')
-    parser.add_argument('count', type = boolean, help = 'If you want to assess your prediction of train set')
+    parser.add_argument('count', type = str, nargs = '?', help = 'If you want to assess your prediction of train set', default =  'False')
     args = parser.parse_args()
 
     X, Y, features, y_name = preprocess(args.set)
@@ -53,8 +58,9 @@ if __name__ == '__main__':
     all_theta = Matrix(all_theta[1:]).to_float()
 
     res = predict(X, all_theta, house_dico)
-    if args.count == True:
-        print(assess_result(Y, res))
+    if args.count == 'True':
+        accuracy = assess_result(Y, res, house_dico)
+        print accuracy
     else:
         X_test = return_predict(args.set, res)
         write_csv(Matrix(X_test[1:]), X_test[0], 'result_test')
