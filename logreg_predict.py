@@ -30,12 +30,17 @@ def return_predict(X, res):
         X_test[i+1][1] = res[i][0]
     return X_test
 
+<<<<<<< HEAD
 def assess_result(Y, res):
     true_pred = 0
     for i in range(Y.nrow):
         if res[i][0] == Y[i][0]:
             true_pred += 1
     return true_pred / Y.nrow
+=======
+def assess_result(X_train, X_pred):
+
+>>>>>>> e3ebeb98a20bd3ad1a0630c1ba10432ebc44d4a4
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Dataset you want to describe')
