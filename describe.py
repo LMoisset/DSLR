@@ -84,7 +84,7 @@ if __name__ == '__main__':
     feature_dico, feature_list = read_data(args.set)
 
     res = ['Feature', 'Count', 'Mean', 'Std', 'Min', '0.25%', '0.5%', 'O.75%', 'Max']
-    print '%s' % '\t'.join([str(x) for x in res]))
+    print '%s' % '\t'.join([str(x) for x in res])
 
     for feature in feature_list:
         res = [feature]
