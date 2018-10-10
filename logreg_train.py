@@ -35,7 +35,18 @@ def preprocess(dataname):
     df = read_data3('../data/'+dataname)
     Y = df.col(1)
     Y = Y.drop([0], axis = 0)
-    X = df.drop([0,1,2,3,4], axis = 1) # get rid of index, house, firstname, lastname, birthday
+
+    # We saw in the data viz scatter plot part that Astronomy and Defense against
+    # the dark arts seemed to be extremely similar. We therefore can try predicting
+    # without one of them (Astronomy).
+
+    # We also saw with the histograms that Arithmancy and Care of Magical Creatures
+    # have a similar repartition in each house, thus only adding noise when trying
+    # to predict, so we can try without them.
+    X = df.drop([0,1,2,3,4, 6, 7], axis = 1) # get rid of index, house, firstname,
+    # lastname, birthday, arithmancy, astronomy, care of magical creatures
+
+
     features = X[0]
     X = X.drop([0], axis = 0)
     X = X.to_float()
@@ -80,21 +91,24 @@ def gradient_descent(X, Y, num_iter, learning_rate):
         theta = theta.sub(grad.product(learning_rate))
         if i % 500 == 0:
             print('Loss Function after '+ str(i)+' iterations : ', loss_function(X,Y,theta))
+    print('Final Loss function : ', loss_function(X,Y,theta))
     return theta
 
-def one_vs_all_fit(X, Y, y_name, num_iter, learning_rate:
+
+def write_csv(file, columns, file_name):
+    with open('../data/' + str(file_name) + '.csv', mode='w') as output:
+        weights = csv.writer(output, lineterminator = '\n')
+        weights.writerow(columns)
+        for line in file:
+            weights.writerow(line)
+
+
+def one_vs_all_fit(X, Y, y_name, num_iter, learning_rate):
     all_theta = gradient_descent(X, Y.col(0), num_iter, learning_rate)
     for i in range(1, Y.ncol):
-        all_theta.append_col(gradient_descent(X, Y.col(i), num_iter, learning_rate).to_list()) 
-    with open('../data/theta_weights.csv', mode='w') as weights:
-        weights.write(l for l in y_name)
-        weights.write('\t')
-        for line in all_theta:
-            weights.write(l for l in line)
-	    weights.write('\t')
+        all_theta.append_col(gradient_descent(X, Y.col(i), num_iter, learning_rate).to_list())
+    write_csv(all_theta, y_name, 'theta_weights')
     return all_theta
-
-
 
 
 if __name__ == '__main__':
@@ -104,8 +118,6 @@ if __name__ == '__main__':
 
     X, Y, features, y_name = preprocess(args.set)
     all_theta = one_vs_all_fit(X,Y, y_name, 1000, 0.1)
-    all_theta.show()
-
 
 
 
